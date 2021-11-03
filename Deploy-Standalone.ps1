@@ -60,8 +60,8 @@ foreach ($user in @("lowpriv", "highpriv") ) {
     C:\tools\PsExec.exe -accepteula -u $user -p $password cmd.exe /c exit
 
     #Populate files
-    Expand-Archive -Path ./vulndfile/vulnerabledirectory-main/desktop_files.zip -DestinationPath "c:\users\$user\desktop\" -Force
-    Expand-Archive -Path ./vulndfile/vulnerabledirectory-main/documents.zip -DestinationPath "c:\users\$user\documents\" -Force
+    Expand-Archive -Path c:/temp/vulndfile/vulnerabledirectory-main/desktop_files.zip -DestinationPath "c:\users\$user\desktop\" -Force
+    Expand-Archive -Path c:/temp/vulndfile/vulnerabledirectory-main/documents.zip -DestinationPath "c:\users\$user\documents\" -Force
 
     if ($user -eq "highpriv") {
         write-host "[*] Created admin user - $user`:$password"
@@ -84,6 +84,7 @@ foreach ($folder in $folders) {
 
 ##Install or Upgrade Sysmon
 
+
 ## Check for Sysmon
 if ( (Get-ItemProperty -Path  "HKCU:\Software\Sysinternals\System Monitor" -ErrorAction Ignore) -eq $null) {
     write-host "[*] Downloading Sysmon"
@@ -91,13 +92,12 @@ if ( (Get-ItemProperty -Path  "HKCU:\Software\Sysinternals\System Monitor" -Erro
 
     invoke-webrequest -uri $sysmonurl -outfile sysmon.zip
 
-    Expand-Archive -Path sysmon.zip -DestinationPath ./vulndfile/ -Force
+    Expand-Archive -Path sysmon.zip -DestinationPath c:\tools\ -Force
 
     write-host "[*] Installing Sysmon"
 
-    .\vulndfile\Sysmon.exe -i .\vulndfile\vulnerabledirectory-main\sysmon.conf -accepteula | Out-Null
+    cmd /c "c:\tools\Sysmon.exe -accepteula -i c:\temp\vulndfile\vulnerabledirectory-main\sysmon.conf"
     }
  else {
      Write-Host "[*] Sysmon already installed, updating config"
-     C:\Windows\Sysmon.exe -c .\vulndfile\vulnerabledirectory-main\sysmon.conf | Out-Null
- }
+     cmd /c "c:\tools\Sysmon.exe -c c:\temp\vulndfile\vulnerabledirectory-main\sysmon.conf"  }
