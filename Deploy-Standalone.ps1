@@ -85,7 +85,7 @@ foreach ($folder in $folders) {
 ##Install or Upgrade Sysmon
 
 ## Check for Sysmon
-if ( (Get-ItemProperty -Path  "HKCU:\Software\Sysinternals\System Monitor") -eq $false) {
+if ( (Get-ItemProperty -Path  "HKCU:\Software\Sysinternals\System Monitor" -ErrorAction Ignore) -eq $null) {
     write-host "[*] Downloading Sysmon"
     $sysmonurl = "https://download.sysinternals.com/files/Sysmon.zip"
 
