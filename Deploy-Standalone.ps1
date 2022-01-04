@@ -1,7 +1,24 @@
 ##System Configuration
 
 $hostname = "vulnwin"
+$insecure = $false  #Set to $true to bypass SSL Verification
 
+##Bypass SSL Verify
+if ($insecure -eq $true) {
+    add-type @"
+    using System.Net;
+    using System.Security.Cryptography.X509Certificates;
+    public class TrustAllCertsPolicy : ICertificatePolicy {
+        public bool CheckValidationResult(
+            ServicePoint srvPoint, X509Certificate certificate,
+            WebRequest request, int certificateProblem) {
+            return true;
+        }
+    }
+"@
+[System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
+    }
+    
 ##Setup host
 
 if ((Test-Path C:\tools\PsExec.exe) -eq $false) {
