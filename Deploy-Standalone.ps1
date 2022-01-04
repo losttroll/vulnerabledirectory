@@ -140,9 +140,17 @@ $tools = @(
     )
 
     foreach ($tool in $tools) {
+
         $url = ($tool -split "\|")[0]
         $name = ($tool -split "\|")[1]
+
+        $filepath = "c:\tools\$name"
+        if (Test-Path $filepath) {
+            write-host "[*] The file $name is already downloaded"
+            continue
+        }
+
         write-host "[*] Downloading $name"
-        Invoke-WebRequest -Uri $url -OutFile "c:\tools\$name"
+        Invoke-WebRequest -Uri $url -OutFile $filepath
 
     }
