@@ -54,7 +54,7 @@ $warning_title = "WARNING!!!"
 $warning_message = "Do not expose this system to public networks, it has been configured to be VERY insecure.  This should only be deployed on private networks."
 
 Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System\" -Name "legalnoticecaption" -Value $warning_message
-Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System\" -Name "legalnoticetext" -Value $warning_message
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System\" -Name "legalnoticetext" -Value $warning_title
 
 #hostname
 if (([System.Net.Dns]::GetHostName()) -ne $hostname) {
