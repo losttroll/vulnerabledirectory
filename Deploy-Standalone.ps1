@@ -128,8 +128,6 @@ if (Get-Service Sysmon -ErrorAction Ignore | Select Status) {
 
     cmd /c "c:\tools\Sysmon.exe -accepteula -i c:\temp\vulndfile\vulnerabledirectory-main\sysmon.conf"
     }
- else {
-       }
 
 ## Common tools downloads     
 $tools = @(
