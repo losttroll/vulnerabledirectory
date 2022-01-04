@@ -4,6 +4,10 @@ $hostname = "vulnwin"
 $insecure = $false  #Set to $true to bypass SSL Verification
 $folder = "c:\temp"
 
+##Account Lockout
+$lockout_duration = 5 #minutes
+$lockout_threshold = 15 #0 will disabled threshold
+
 ##Working Directory
 if (Test-Path $folder) {
    Set-Location $folder
@@ -97,6 +101,13 @@ foreach ($user in @("lowpriv", "highpriv") ) {
         write-host "[*] Created non-admin user - $user`:$password"
     }
 }
+
+## Set Account Lockout Thresholds
+write-host "[*] Setting Lockout Duration to: $lockout_duration"
+cmd /c "net accounts /lockoutduration:$lockout_duration"
+
+write-host "[*] Setting Lockout Threshold to: $lockout_threshold"
+cmd /c "net accounts /lockoutduration:$lockout_threshold"
 
 ## Create defender Exceptions
 $folders = @("c:\temp\unsafe", "c:\users\lowpriv\desktop\unsafe", "c:\users\highpriv\desktop\unsafe")
