@@ -15,6 +15,7 @@ if (Test-Path $folder) {
     Write-Host "[*] Creating $folder"
     mkdir $folder
     Set-Location $folder
+    }
 
 ##Bypass SSL Verify
 if ($insecure -eq $true) {
