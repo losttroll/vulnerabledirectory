@@ -131,11 +131,11 @@ if (Get-Service Sysmon -ErrorAction Ignore | Select Status) {
 
 ## Common tools downloads     
 $tools = @(
-    "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.1.9/npp.8.1.9.Installer.exe|npp.8.1.9.Installer.exe",
+    "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.2/npp.8.2.Installer.x64.exe|npp.8.2.Installer.x64.exe",
     "https://www.baremetalsoft.com/baretail/download.php?p=m|beartail.exe",
     "https://github.com/Seabreg/Regshot/archive/refs/heads/master.zip|regshot.zip",
     "https://nmap.org/dist/nmap-7.92-setup.exe|nmap-7.92-setup.exe",
-    "https://1.na.dl.wireshark.org/win32/Wireshark-win32-3.4.9.exe|Wireshark-win32-3.4.9.exe",
+    "https://1.na.dl.wireshark.org/win64/Wireshark-win64-3.6.1.exe|Wireshark-win64-3.6.1.exe",
     "https://www.python.org/ftp/python/3.10.0/python-3.10.0-amd64.exe|python-3.10.0-amd64.exe"
     )
 
