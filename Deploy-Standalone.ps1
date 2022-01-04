@@ -2,6 +2,15 @@
 
 $hostname = "vulnwin"
 $insecure = $false  #Set to $true to bypass SSL Verification
+$folder = "c:\temp"
+
+##Working Directory
+if (Test-Path $folder) {
+   Set-Location $folder
+} else { 
+    Write-Host "[*] Creating $folder"
+    mkdir $folder
+    Set-Location $folder
 
 ##Bypass SSL Verify
 if ($insecure -eq $true) {
