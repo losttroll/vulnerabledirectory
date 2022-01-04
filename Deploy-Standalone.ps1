@@ -57,8 +57,8 @@ Expand-Archive -Path main.zip -DestinationPath ./vulndfile/ -Force
 $warning_title = "WARNING!!!"
 $warning_message = "Do not expose this system to public networks, it has been configured to be VERY insecure.  This should only be deployed on private networks."
 
-Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System\" -Name "legalnoticecaption" -Value $warning_message
-Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System\" -Name "legalnoticetext" -Value $warning_title
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System\" -Name "legalnoticecaption" -Value $warning_title
+Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System\" -Name "legalnoticetext" -Value $warning_message
 
 #hostname
 if (([System.Net.Dns]::GetHostName()) -ne $hostname) {
