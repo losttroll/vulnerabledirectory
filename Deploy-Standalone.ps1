@@ -108,7 +108,7 @@ write-host "[*] Setting Lockout Duration to: $lockout_duration"
 cmd /c "net accounts /lockoutduration:$lockout_duration"
 
 write-host "[*] Setting Lockout Threshold to: $lockout_threshold"
-cmd /c "net accounts /lockoutduration:$lockout_threshold"
+cmd /c "net accounts /lockoutthreshold:$lockout_threshold"
 
 ## Create defender Exceptions
 $folders = @("c:\temp\unsafe", "c:\users\lowpriv\desktop\unsafe", "c:\users\highpriv\desktop\unsafe")
