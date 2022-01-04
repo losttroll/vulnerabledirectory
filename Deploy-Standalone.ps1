@@ -112,7 +112,11 @@ foreach ($folder in $folders) {
 
 
 ## Check for Sysmon
-if ( (Get-ItemProperty -Path  "HKCU:\Software\Sysinternals\System Monitor" -ErrorAction Ignore) -eq $null) {
+if (Get-Service Sysmon -ErrorAction Ignore | Select Status) {
+
+    Write-Host "[*] Sysmon already installed, updating config"
+    cmd /c "c:\tools\Sysmon.exe -c c:\temp\vulndfile\vulnerabledirectory-main\sysmon.conf"
+    } else {
     write-host "[*] Downloading Sysmon"
     $sysmonurl = "https://download.sysinternals.com/files/Sysmon.zip"
 
@@ -125,8 +129,7 @@ if ( (Get-ItemProperty -Path  "HKCU:\Software\Sysinternals\System Monitor" -Erro
     cmd /c "c:\tools\Sysmon.exe -accepteula -i c:\temp\vulndfile\vulnerabledirectory-main\sysmon.conf"
     }
  else {
-     Write-Host "[*] Sysmon already installed, updating config"
-     cmd /c "c:\tools\Sysmon.exe -c c:\temp\vulndfile\vulnerabledirectory-main\sysmon.conf"  }
+       }
 
 ## Common tools downloads     
 $tools = @(
