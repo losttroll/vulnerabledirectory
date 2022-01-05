@@ -1,12 +1,20 @@
 ##System Configuration
 
 $hostname = "vulnwin"
-$insecure = $false  #Set to $true to bypass SSL Verification
+$insecure = $true  #Set to $true to bypass SSL Verification
 $folder = "c:\temp"
+$splunk_password = "password"
+$splunk_install = $true
 
 ##Account Lockout
 $lockout_duration = 5 #minutes
 $lockout_threshold = 15 #0 will disabled threshold
+
+#Bitnami WAMP
+$wamp_install = $true
+$wamp_user = "wampadmin"
+$wamp_password = "wamppass"
+$db_password = "dbpasswrd"
 
 ##Working Directory
 if (Test-Path $folder) {
@@ -110,12 +118,6 @@ cmd /c "net accounts /lockoutduration:$lockout_duration"
 write-host "[*] Setting Lockout Threshold to: $lockout_threshold"
 cmd /c "net accounts /lockoutthreshold:$lockout_threshold"
 
-## Create defender Exceptions
-$folders = @("c:\temp\unsafe", "c:\users\lowpriv\desktop\unsafe", "c:\users\highpriv\desktop\unsafe")
-foreach ($folder in $folders) {
-    write-host "[*] Creating AV Exception for: $folder"
-    Add-MpPreference -ExclusionPath “$folder”
-    }
 
 ## Enable RDP
 $check_rdp = (Get-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server").fDenyTSConnections
@@ -156,6 +158,8 @@ $tools = @(
     "https://nmap.org/dist/nmap-7.92-setup.exe|nmap-7.92-setup.exe",
     "https://1.na.dl.wireshark.org/win64/Wireshark-win64-3.6.1.exe|Wireshark-win64-3.6.1.exe",
     "https://www.python.org/ftp/python/3.10.0/python-3.10.0-amd64.exe|python-3.10.0-amd64.exe"
+    "https://download.splunk.com/products/splunk/releases/8.2.4/windows/splunk-8.2.4-87e2dda940d1-x64-release.msi|splunk.msi",
+    "https://bitnami.com/redirect/to/1855345/bitnami-wampstack-8.1.1-0-windows-x64-installer.exe|wampstack.exe"
     )
 
     foreach ($tool in $tools) {
@@ -172,4 +176,32 @@ $tools = @(
         write-host "[*] Downloading $name"
         Invoke-WebRequest -Uri $url -OutFile $filepath
 
+    }
+
+if ($splunk_install -eq $true) {
+    if ( -not (Get-WmiObject -Class Win32_Product | where vendor -eq "Splunk, Inc.")) {
+        write-host "[*] Installing Splunk, this will take a while"
+        cmd /c "C:\tools\splunk.msi AGREETOLICENSE=Yes SPLUNKPASSWORD=$splunk_password /qn /norestart"
+        write-host "[*] Splunk Installed.  Login at http://127.0.0.1:8000.  Username: admin, Password: $splunk_password"
+    } else {
+        write-host "[*] Splunk already installed"
+    }
+    }
+if ($wamp_install -eq $true) {    
+    if ( -not (test-path -path "C:\Bitnami\wampstack-8.1.1-0\apache2\bin\httpd.exe")) {
+         write-host "[*] Installing Bitnami, this will take a while"
+         cmd /c "c:\tools\wampstack.exe --mode unattended --disable-components zendframework --disable-components codeigniter --disable-components cakephp --disable-components smarty --mysql_password $db_password --launch_cloud 0 --base_user $wamp_user --base_password $wamp_password"
+         write-host "[*] Splunk Installed.  Login at http://127.0.0.1.  Username: $wamp_user, Password: $wamp_password, DB Password: $db_password, Webshell: http://127.0.0.1/shell.php"
+         Copy-Item -Path "C:\temp\vulndfile\vulnerabledirectory-main\shell.php" -Destination "C:\Bitnami\wampstack-8.1.1-0\apache2\htdocs\"
+    } else {
+    write-host "[*] Bitnami WAMP Already Installed"
+    }
+}
+
+
+## Create defender Exceptions
+$folders = @("c:\temp\unsafe", "c:\users\lowpriv\desktop\unsafe", "c:\users\highpriv\desktop\unsafe", "C:\Bitnami", "C:\Program Files\Splunk")
+foreach ($folder in $folders) {
+    write-host "[*] Creating AV Exception for: $folder"
+    Add-MpPreference -ExclusionPath “$folder”
     }
