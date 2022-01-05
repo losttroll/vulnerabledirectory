@@ -14,6 +14,7 @@ The script **Deploy-Standalone.ps1** will prepare a Windows 10 client for simple
 - Enables RDP
 - Sets Account Lockout Threshold
 - Sets Account Lockout Duration
+- Sets hostname
 - Set Warning Banner
 
 ### Downloads
