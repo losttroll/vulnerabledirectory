@@ -16,6 +16,9 @@ $wamp_user = "wampadmin"
 $wamp_password = "wamppass"
 $db_password = "dbpasswrd"
 
+#Root Certificate
+$root_cert = $false
+
 ##Working Directory
 if (Test-Path $folder) {
    Set-Location $folder
@@ -205,3 +208,9 @@ foreach ($folder in $folders) {
     write-host "[*] Creating AV Exception for: $folder"
     Add-MpPreference -ExclusionPath “$folder”
     }
+    
+## Install root CA
+if ($root_cert -ne $false) {
+    write-host "[*] Installing root certificate: $root_cert"
+    Import-Certificate -FilePath $root_cert -CertStoreLocation Cert:\LocalMachine\Root
+}
