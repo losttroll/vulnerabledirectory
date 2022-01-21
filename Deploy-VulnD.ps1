@@ -1,4 +1,27 @@
-﻿function do-install {
+﻿function install-sysmon {
+    if (Get-Service Sysmon -ErrorAction Ignore | Select Status) {
+
+        Write-Host "[*] Sysmon already installed, updating config"
+        cmd /c "c:\tools\Sysmon.exe -c sysmon.conf"
+        } else {
+        write-host "[*] Downloading Sysmon"
+
+        $sysmonurl = "https://download.sysinternals.com/files/Sysmon.zip"
+
+        invoke-webrequest -uri $sysmonurl -outfile sysmon.zip
+
+        Expand-Archive -Path sysmon.zip -DestinationPath c:\tools\ -Force
+
+        write-host "[*] Installing Sysmon"
+
+        cmd /c "c:\tools\Sysmon.exe -accepteula -i sysmon.conf"
+    }
+
+
+}
+
+
+function do-install {
 param(
        [string]$hostname,
        [string]$domain,
@@ -6,6 +29,13 @@ param(
        )
 
 write-host "[*] Installing VulnD"
+
+##Tool Path
+$folder = "c:\tools"
+Write-Host "[*] Creating $folder"
+mkdir $folder
+
+
 
 ## Set Hostname
 if ( $(hostname) -ne $hostname ) {
@@ -42,6 +72,7 @@ function invoke-vulnd {
 
     param(
     [switch]$install,
+    [switch]$sysmon,
     [string]$hostname = "dc",
     [string]$domain = "vuln.d",
     [string]$safemodepassword = "Saf3vulnd-p4ssw!"
@@ -50,5 +81,6 @@ function invoke-vulnd {
     write-host "[*] Starting Vulnerable Directory"
 
     if ($install) { do-install -hostname $hostname -domain $domain -safemodepassword $safemodepassword}
+    elseif ($sysmon) {install-sysmon}
 
 } # invoke-vulnd
