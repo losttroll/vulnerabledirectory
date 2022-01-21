@@ -44,7 +44,7 @@ function invoke-vulnd {
     [switch]$install,
     [string]$hostname = "dc",
     [string]$domain = "vuln.d",
-    [string]$safemodepassword = "safevulnd"
+    [string]$safemodepassword = "Saf3vulnd-p4ssw!"
     )
 
     write-host "[*] Starting Vulnerable Directory"
