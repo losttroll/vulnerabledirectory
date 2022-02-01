@@ -1,4 +1,6 @@
-﻿function install-sysmon {
+﻿. ".\Create-Accounts.ps1"
+
+function install-sysmon {
     if (Get-Service Sysmon -ErrorAction Ignore | Select Status) {
 
         Write-Host "[*] Sysmon already installed, updating config"
@@ -52,7 +54,7 @@ if ( $ads_service_installed.Installed ) {
 } else {
     write-host "[*] Installing AD Domain Services"
     Install-WindowsFeature -name AD-Domain-Services -IncludeManagementTools -InformationAction SilentlyContinue -WarningAction SilentlyContinue
-}
+    }
 
 ## Create domain
 if ((gwmi win32_computersystem).partofdomain -eq $true) {
@@ -66,7 +68,42 @@ if ((gwmi win32_computersystem).partofdomain -eq $true) {
         }
 }
 
+
+## Import GPOs
+
+#Export GPO - "Backup-GPO -Guid 37B982DA-FD56-446C-9EC1-A6F712E934FC -Path C:\Users\Administrator\vulnerabledirectory\GPOs\"
+
+write-host "[*] Importing Default GPOs"
+
+$gpos = @(
+    @( "WeakPasswordPolicy", "dc=hack,dc=lab" ),
+    @( "AuditLoggingPolicy", "dc=hack,dc=lab" ),
+    @( "SecurityBannerPolicy", "dc=hack,dc=lab")
+    
+     )
+
+foreach ($gpo in $gpos ) {
+    #$values = $gpo -split "|"
+    $name = $gpo[0]
+    $target = $gpo[1]
+    
+    #write-host $name, $target
+ 
+
+    if (-not (Get-GPO -Name WeakPasswordPolicay)) {
+    New-GPO -Name $name
+    Import-GPO -Path C:\Users\Administrator\vulnerabledirectory\GPOs\ -BackupGpoName $name -TargetName $name 
+    New-GPLink -Name $name -Target $target -LinkEnabled Yes
+    
+        }
+
+    }
+
+## Add Users
+Creates-Users
 } # do-install
+
+
 
 function invoke-vulnd {
 
@@ -83,4 +120,5 @@ function invoke-vulnd {
     if ($install) { do-install -hostname $hostname -domain $domain -safemodepassword $safemodepassword}
     elseif ($sysmon) {install-sysmon}
 
+    
 } # invoke-vulnd
