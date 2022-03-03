@@ -1,4 +1,36 @@
-﻿. ".\Create-Accounts.ps1"
+. "C:\Users\Administrator\vulnerabledirectory\Create-Accounts.ps1"
+
+function Set-RunOnce
+  
+{
+    [CmdletBinding()]
+    param
+    (
+         #Command to run
+        [string]
+        $Path
+  
+    ) 
+    $KeyName = 'Run'
+    $Command = "%systemroot%\System32\WindowsPowerShell\v1.0\powershell.exe -executionpolicy bypass -file $Path"
+    echo $Command
+    if (-not ((Get-Item -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce).$KeyName ))
+    {
+        New-ItemProperty -Path 'HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce' -Name $KeyName -Value $Command -PropertyType ExpandString
+    }
+    else
+    {
+        Set-ItemProperty -Path 'HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce' -Name $KeyName -Value $Command -PropertyType ExpandString
+    }
+
+    shutdown -r -t 10
+}
+
+function Do-Reboot {
+    write-host "[!] Reboot Required, doing that now"
+    Set-RunOnce -Path C:\Users\Administrator\vulnerabledirectory\Deploy-VulnD.ps1
+    
+}
 
 function install-sysmon {
     if (Get-Service Sysmon -ErrorAction Ignore | Select Status) {
@@ -34,16 +66,18 @@ write-host "[*] Installing VulnD"
 
 ##Tool Path
 $folder = "c:\tools"
-Write-Host "[*] Creating $folder"
-mkdir $folder
-
-
+if (-not (Test-Path -Path $folder)) {
+    Write-Host "[*] Creating tools folder: $folder"
+    mkdir $folder
+    }
+    
 
 ## Set Hostname
 if ( $(hostname) -ne $hostname ) {
     write-host "[*] Setting hostname to $hostname"
     Rename-Computer $hostname -WarningAction SilentlyContinue
     write-host "[!] Hostname will appy after reboot"
+    Do-Reboot
     }
 
 ## Check if AD-Domain-Services is installed
@@ -66,8 +100,8 @@ if ((gwmi win32_computersystem).partofdomain -eq $true) {
     Invoke-Command { 
         Install-ADDSForest -DomainName $domain -InstallDns -SafeModeAdministratorPassword $supersecurepassword -Force -InformationAction SilentlyContinue
         }
+    Do-Reboot
 }
-
 
 ## Import GPOs
 
@@ -76,11 +110,13 @@ if ((gwmi win32_computersystem).partofdomain -eq $true) {
 write-host "[*] Importing Default GPOs"
 
 $gpos = @(
-    @( "WeakPasswordPolicy", "dc=hack,dc=lab" ),
-    @( "AuditLoggingPolicy", "dc=hack,dc=lab" ),
-    @( "SecurityBannerPolicy", "dc=hack,dc=lab")
+    @( "WeakPasswordPolicy", "dc=vuln,dc=d" ),
+    @( "AuditLoggingPolicy", "dc=vuln,dc=d" ),
+    @( "SecurityBannerPolicy", "dc=vuln,dc=d")
     
      )
+
+$newgp = $false
 
 foreach ($gpo in $gpos ) {
     #$values = $gpo -split "|"
@@ -90,17 +126,25 @@ foreach ($gpo in $gpos ) {
     #write-host $name, $target
  
 
-    if (-not (Get-GPO -Name WeakPasswordPolicay)) {
+    if (-not (Get-GPO -Name $name)) {
     New-GPO -Name $name
     Import-GPO -Path C:\Users\Administrator\vulnerabledirectory\GPOs\ -BackupGpoName $name -TargetName $name 
     New-GPLink -Name $name -Target $target -LinkEnabled Yes
-    
+    $newgp = $true
         }
 
     }
+if ($newgp -eq $true) {
+    Invoke-GPUpdate
+    }
 
 ## Add Users
-Creates-Users
+$totalusers = (Get-ADUser -Filter * )
+if ($totalusers.Count -lt 5) {
+    write-host "[*] Creating User Accounts"
+    Creates-Users
+}
+
 } # do-install
 
 
@@ -122,3 +166,5 @@ function invoke-vulnd {
 
     
 } # invoke-vulnd
+
+invoke-vulnd -install
