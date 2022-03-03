@@ -1,4 +1,4 @@
-﻿function Generate-Password {
+function Generate-Password {
     param ([string]$num)
     if ( $num -eq "random") {
         $number = Get-Random -Maximum 100
@@ -43,10 +43,10 @@
 function Generate-Name {
     
     ## Create Last Name
-    $lastname = Get-Random -InputObject (get-content .\lastnames.txt)
+    $lastname = Get-Random -InputObject (get-content C:\Users\Administrator\vulnerabledirectory\lastnames.txt)
     
     ## Create First Name
-    $firstname = Get-Random -InputObject (get-content .\firstnames.txt)
+    $firstname = Get-Random -InputObject (get-content C:\Users\Administrator\vulnerabledirectory\firstnames.txt)
 
     ## Create User Name
     $un = ($firstname + "." + $lastname).ToLower()
