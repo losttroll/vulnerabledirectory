@@ -23,7 +23,8 @@ function Set-RunOnce
         Set-ItemProperty -Path 'HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce' -Name $KeyName -Value $Command -PropertyType ExpandString
     }
 
-    shutdown -r -t 10
+    shutdown -r -t 00
+    break
 }
 
 function Do-Reboot {
@@ -62,26 +63,33 @@ param(
        [string]$safemodepassword
        )
 
+#Base DN
+
+$dc1 = ($domain -split "\.")[0]
+$dc2 = ($domain -split "\.")[1]
+$basedn = "dc=$dc1,dc=$dc2"
+
+
 write-host "[*] Installing VulnD"
 
 ##Tool Path
 $folder = "c:\tools"
 if (-not (Test-Path -Path $folder)) {
     Write-Host "[*] Creating tools folder: $folder"
-    mkdir $folder
+    mkdir $folder -InformationAction SilentlyContinue -WarningAction SilentlyContinue
     }
     
 
 ## Set Hostname
 if ( $(hostname) -ne $hostname ) {
     write-host "[*] Setting hostname to $hostname"
-    Rename-Computer $hostname -WarningAction SilentlyContinue
+    Rename-Computer $hostname -InformationAction SilentlyContinue -WarningAction SilentlyContinue
     write-host "[!] Hostname will appy after reboot"
     Do-Reboot
     }
 
 ## Check if AD-Domain-Services is installed
-$ads_service_installed = Get-WindowsFeature -Name AD-Domain-Services
+$ads_service_installed = Get-WindowsFeature -Name AD-Domain-Services -InformationAction SilentlyContinue -WarningAction SilentlyContinue
 
 if ( $ads_service_installed.Installed ) {
     write-host "[*] AD Domain Services already installed"
@@ -97,8 +105,8 @@ if ((gwmi win32_computersystem).partofdomain -eq $true) {
     write-host "[*] Not Domain Joined, creating DC"
     #Create 
     $supersecurepassword = ConvertTo-SecureString $safemodepassword -AsPlainText -Force
-    Invoke-Command { 
-        Install-ADDSForest -DomainName $domain -InstallDns -SafeModeAdministratorPassword $supersecurepassword -Force -InformationAction SilentlyContinue
+    Invoke-Command {  
+        Install-ADDSForest -DomainName $domain -InstallDns -SafeModeAdministratorPassword $supersecurepassword -Force -InformationAction SilentlyContinue -WarningAction SilentlyContinue
         }
     Do-Reboot
 }
@@ -110,9 +118,9 @@ if ((gwmi win32_computersystem).partofdomain -eq $true) {
 write-host "[*] Importing Default GPOs"
 
 $gpos = @(
-    @( "WeakPasswordPolicy", "dc=vuln,dc=d" ),
-    @( "AuditLoggingPolicy", "dc=vuln,dc=d" ),
-    @( "SecurityBannerPolicy", "dc=vuln,dc=d")
+    @( "WeakPasswordPolicy", $basedn ),
+    @( "AuditLoggingPolicy", $basedn ),
+    @( "SecurityBannerPolicy", $basedn)
     
      )
 
