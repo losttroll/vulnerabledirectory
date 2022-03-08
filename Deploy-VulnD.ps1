@@ -135,15 +135,16 @@ foreach ($gpo in $gpos ) {
  
 
     if (-not (Get-GPO -Name $name)) {
-    New-GPO -Name $name
-    Import-GPO -Path C:\Users\Administrator\vulnerabledirectory\GPOs\ -BackupGpoName $name -TargetName $name 
-    New-GPLink -Name $name -Target $target -LinkEnabled Yes
+    New-GPO -Name $name -InformationAction SilentlyContinue -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
+    Import-GPO -Path C:\Users\Administrator\vulnerabledirectory\GPOs\ -BackupGpoName $name -TargetName $name -InformationAction SilentlyContinue -WarningAction SilentlyContinue
+    New-GPLink -Name $name -Target $target -LinkEnabled Yes -InformationAction SilentlyContinue -WarningAction SilentlyContinue
     $newgp = $true
         }
 
     }
 if ($newgp -eq $true) {
     Invoke-GPUpdate
+    sleep 30
     }
 
 ## Add Users
@@ -153,6 +154,9 @@ if ($totalusers.Count -lt 5) {
     Creates-Users
 }
 
+write-host "[*] Installation complete, enjoy your new domain!"
+write-host "[*] Press ENTER to exit"
+$input = Read-Host
 } # do-install
 
 
