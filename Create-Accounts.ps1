@@ -1,5 +1,7 @@
+$pentester = $false
+
 function Generate-Password {
-    param ([string]$num)
+    param ([in]$num)
     if ( $num -eq "random") {
         $number = Get-Random -Maximum 100
         } else {
@@ -8,6 +10,7 @@ function Generate-Password {
     #write-host $number
 
     #PW for seaons & year
+    
 
     if ($number -lt 10) {
 
@@ -15,7 +18,7 @@ function Generate-Password {
         $y1 = $y - 1
         $y2 = $y - 2
         $years = @($y, $y1, $y2)
-        $seasons = @("Winter!", "Spring!", "Summer!")
+        $seasons = @("Winteraa!", "Springaa!", "Summeraa!")
      
         $year = Get-Random -InputObject $years
         $season = Get-Random -InputObject $seasons
@@ -24,8 +27,13 @@ function Generate-Password {
 
     #Create company 'secret password'
     } elseif ($number -lt 20) {
-        $pass = "vulndirectory1!"
+        $pass = "Vulndirectory1!"
 
+        #create pentester
+    } elseif ( $number -lt 25 -and $pentester -eq $false ) {
+        $password = "H4ckth1sd0main!"
+        $pentester = $true
+        
     #Catchall
     } else {
         $length = 15
@@ -60,7 +68,7 @@ function Generate-Name {
     #  echo $un
     #  }
     
-
+    
     #Return array with generated ifno
     return @($firstname, $lastname, $un)
 } #Create-User
@@ -86,8 +94,17 @@ function Add-DomUser {
     $name = "$firstname $lastname"
     $userid = $user_details[2]
 
-    New-ADUser -SamAccountName $userid -Surname $lasnname -Name $name -AccountPassword $password -Enabled $true
+    ### Create Pentester
+    if ($pentester -eq $true) {
+
+        $pentester = "$userid $pass"
+
+    }
+
+    New-ADUser -SamAccountName $userid -Surname $lastname -Name $name -AccountPassword $password -Enabled $true
     #write-host $pass
+
+    
     
     ### Assign Privileges ###
     if ($number -lt 5) {
@@ -112,4 +129,6 @@ function Creates-Users {
     foreach ($n in 1..100) {
         Add-DomUser -number $n
     }
+    print("Pentester Account: $pentester")
+    return 
 }
